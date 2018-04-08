@@ -258,7 +258,7 @@ Arduino_pin_A1
 Text GLabel 2950 2500 0    60   Input ~ 0
 Arduino_pin_A0
 Wire Wire Line
-	2900 1900 2900 2500
+	2950 1900 2950 2500
 $Comp
 L Fuse F1
 U 1 1 5AC7CE08

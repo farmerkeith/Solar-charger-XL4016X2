@@ -40,8 +40,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 3 4
 Title "XL4016X2"
-Date "2018-04-06"
-Rev "V3"
+Date "2018-04-11"
+Rev "V3 minor corrections"
 Comp "farmerkeith"
 Comment1 ""
 Comment2 ""
@@ -637,4 +637,5 @@ Text GLabel 5900 4150 2    60   Input ~ 0
 BATTERY+
 Text Notes 1450 1100 0    60   ~ 0
 SOLAR CONVERTER CONNECTION SUB-CIRCUIT
+Connection ~ 8450 2050
 $EndSCHEMATC

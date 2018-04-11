@@ -40,8 +40,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 4 4
 Title "XL4016X2"
-Date "2018-01-11"
-Rev ""
+Date "2018-04-11"
+Rev "V3 minor corrections"
 Comp "farmerkeith"
 Comment1 ""
 Comment2 ""
@@ -306,4 +306,16 @@ Text GLabel 7550 2900 0    60   Input ~ 0
 +5V
 Text GLabel 7550 3250 2    60   Input ~ 0
 Arduino_pin_A6
+Wire Wire Line
+	2850 1950 2850 2150
+Connection ~ 2850 2050
+Connection ~ 2850 2150
+NoConn ~ 4750 1950
+NoConn ~ 4750 2050
+NoConn ~ 6100 2400
+NoConn ~ 6100 2500
+NoConn ~ 7100 2500
+NoConn ~ 7100 2400
+NoConn ~ 7100 2300
+NoConn ~ 7100 2200
 $EndSCHEMATC

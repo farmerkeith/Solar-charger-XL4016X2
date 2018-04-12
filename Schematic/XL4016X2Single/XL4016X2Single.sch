@@ -40,8 +40,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "XL4016X2Single"
-Date "2018-04-11"
-Rev "Initial issue"
+Date "2018-04-12"
+Rev "V2"
 Comp "farmerkeith"
 Comment1 ""
 Comment2 ""
@@ -68,17 +68,6 @@ F 1 "Battery" H 10000 3350 50  0000 C CNN
 F 2 "" H 10000 3550 50  0001 C CNN
 F 3 "" H 10000 3550 50  0001 C CNN
 	1    10000 3550
-	1    0    0    -1  
-$EndComp
-$Comp
-L GNDPWR #PWR3
-U 1 1 5ACD67FC
-P 900 1250
-F 0 "#PWR3" H 900 1050 50  0001 C CNN
-F 1 "GNDPWR" H 900 1120 50  0000 C CNN
-F 2 "" H 900 1200 50  0001 C CNN
-F 3 "" H 900 1200 50  0001 C CNN
-	1    900  1250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -126,9 +115,15 @@ F 3 "" H 1550 1200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1350 1050 1850 1050
+	1350 1050 1550 1050
 Wire Wire Line
-	900  750  2100 750 
+	1550 1050 1850 1050
+Wire Wire Line
+	900  750  1100 750 
+Wire Wire Line
+	1100 750  1350 750 
+Wire Wire Line
+	1350 750  2100 750 
 $Comp
 L GND #PWR4
 U 1 1 5ACD6801
@@ -201,17 +196,6 @@ F 3 "" H 3050 1950 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L GNDPWR #PWR8
-U 1 1 5ACD6807
-P 3200 1950
-F 0 "#PWR8" H 3200 1750 50  0001 C CNN
-F 1 "GNDPWR" H 3200 1820 50  0000 C CNN
-F 2 "" H 3200 1900 50  0001 C CNN
-F 3 "" H 3200 1900 50  0001 C CNN
-	1    3200 1950
-	1    0    0    -1  
-$EndComp
-$Comp
 L ACS712module U2
 U 1 1 5ACD6808
 P 2350 1550
@@ -282,7 +266,11 @@ F 3 "" H 10650 800 50  0001 C CNN
 $EndComp
 Connection ~ 9800 3650
 Wire Wire Line
-	2550 750  4500 750 
+	2550 750  2900 750 
+Wire Wire Line
+	2900 750  3400 750 
+Wire Wire Line
+	3400 750  4500 750 
 $Comp
 L XL4016_DC-DC_module U3
 U 1 1 5ACD680D
@@ -354,39 +342,33 @@ Wire Wire Line
 $Comp
 L GNDPWR #PWR1
 U 1 1 5ACD6813
-P 3800 850
-F 0 "#PWR1" H 3800 650 50  0001 C CNN
-F 1 "GNDPWR" H 3800 720 50  0000 C CNN
-F 2 "" H 3800 800 50  0001 C CNN
-F 3 "" H 3800 800 50  0001 C CNN
-	1    3800 850 
+P 3800 1050
+F 0 "#PWR1" H 3800 850 50  0001 C CNN
+F 1 "GNDPWR" H 3800 920 50  0000 C CNN
+F 2 "" H 3800 1000 50  0001 C CNN
+F 3 "" H 3800 1000 50  0001 C CNN
+	1    3800 1050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3800 850  4500 850 
+	3800 1050 4500 1050
 Wire Wire Line
-	4500 1050 4150 1050
-Wire Wire Line
-	4150 1050 4150 850 
-Connection ~ 4150 850 
+	3300 850  4500 850 
 $Comp
 L GNDPWR #PWR7
 U 1 1 5ACD6814
-P 3800 1900
-F 0 "#PWR7" H 3800 1700 50  0001 C CNN
-F 1 "GNDPWR" H 3800 1770 50  0000 C CNN
-F 2 "" H 3800 1850 50  0001 C CNN
-F 3 "" H 3800 1850 50  0001 C CNN
-	1    3800 1900
+P 3800 2100
+F 0 "#PWR7" H 3800 1900 50  0001 C CNN
+F 1 "GNDPWR" H 3800 1970 50  0000 C CNN
+F 2 "" H 3800 2050 50  0001 C CNN
+F 3 "" H 3800 2050 50  0001 C CNN
+	1    3800 2100
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	3800 1900 4500 1900
+	3800 2100 4500 2100
 Wire Wire Line
-	4150 2100 4150 1900
-Connection ~ 4150 1900
-Wire Wire Line
-	4500 2100 4150 2100
+	3200 1900 4500 1900
 $Comp
 L D_ALT D4
 U 1 1 5ACD6815
@@ -460,7 +442,11 @@ $EndComp
 Text GLabel 2500 3150 2    60   Input ~ 0
 Arduino_pin_D2
 Wire Wire Line
-	1050 3150 2500 3150
+	1050 3150 1950 3150
+Wire Wire Line
+	1950 3150 2350 3150
+Wire Wire Line
+	2350 3150 2500 3150
 $Comp
 L GND #PWR11
 U 1 1 5ACD681B
@@ -508,6 +494,8 @@ Wire Wire Line
 Wire Wire Line
 	1100 1150 1100 1250
 Wire Wire Line
+	1100 1250 1100 1350
+Wire Wire Line
 	1100 850  1100 750 
 Connection ~ 1100 750 
 $Comp
@@ -522,7 +510,11 @@ F 3 "" H 9600 950 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	7700 800  9900 800 
+	7700 800  7850 800 
+Wire Wire Line
+	7850 800  8250 800 
+Wire Wire Line
+	8250 800  9900 800 
 Wire Wire Line
 	10300 800  10450 800 
 $Comp
@@ -576,7 +568,15 @@ F 3 "" H 5950 3700 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	5300 5350 10600 5350
+	5300 5350 6150 5350
+Wire Wire Line
+	6150 5350 6950 5350
+Wire Wire Line
+	6950 5350 8250 5350
+Wire Wire Line
+	8250 5350 8800 5350
+Wire Wire Line
+	8800 5350 10600 5350
 $Comp
 L GND #PWR16
 U 1 1 5ACD8AE5
@@ -623,9 +623,13 @@ Mains_Adapter_+12V_3A
 Wire Wire Line
 	7700 2200 8250 2200
 Wire Wire Line
-	7500 3550 9500 3550
+	7500 3550 8800 3550
 Wire Wire Line
-	8250 800  8250 3450
+	8800 3550 9500 3550
+Wire Wire Line
+	8250 800  8250 2200
+Wire Wire Line
+	8250 2200 8250 3450
 Wire Wire Line
 	6150 3850 5950 3850
 Wire Wire Line
@@ -722,7 +726,9 @@ Wire Wire Line
 Wire Wire Line
 	5400 3550 5950 3550
 Wire Wire Line
-	4050 3550 6250 3550
+	4050 3550 4700 3550
+Wire Wire Line
+	4700 3550 6250 3550
 Wire Wire Line
 	4700 3550 5000 3550
 $Comp
@@ -817,7 +823,9 @@ Wire Wire Line
 Wire Wire Line
 	4450 4850 5550 4850
 Wire Wire Line
-	6500 800  7300 800 
+	6500 800  7000 800 
+Wire Wire Line
+	7000 800  7300 800 
 $Comp
 L GND #PWR6
 U 1 1 5ACD8AF9
@@ -971,7 +979,9 @@ F 3 "" H 8050 5200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8050 3850 8050 5050
+	8050 3850 8050 4650
+Wire Wire Line
+	8050 4650 8050 5050
 Wire Wire Line
 	6950 5150 6950 5350
 Connection ~ 6950 5350
@@ -1010,7 +1020,9 @@ Wire Wire Line
 Wire Wire Line
 	7900 5750 7900 4650
 Wire Wire Line
-	7900 4650 8250 4650
+	7900 4650 8050 4650
+Wire Wire Line
+	8050 4650 8250 4650
 Connection ~ 8050 4650
 $Comp
 L C C2
@@ -1187,13 +1199,23 @@ Text GLabel 10200 5650 0    60   Input ~ 0
 Text GLabel 10200 6000 2    60   Input ~ 0
 Arduino_pin_A6
 Wire Wire Line
-	2900 750  2900 1950
+	2900 750  2900 1000
+Wire Wire Line
+	2900 1000 2900 1300
+Wire Wire Line
+	2900 1300 2900 1650
+Wire Wire Line
+	2900 1650 2900 1950
 Connection ~ 2900 1650
 Connection ~ 2900 1300
 Connection ~ 2900 750 
 Connection ~ 2900 1000
 Wire Wire Line
-	3200 1000 3200 1950
+	3200 1000 3200 1300
+Wire Wire Line
+	3200 1300 3200 1650
+Wire Wire Line
+	3200 1650 3200 1950
 Connection ~ 3200 1300
 Connection ~ 3200 1650
 Wire Wire Line
@@ -1410,9 +1432,11 @@ Wire Wire Line
 Wire Wire Line
 	2350 4100 3150 4100
 Wire Wire Line
-	3150 4100 3150 4400
+	3150 4400 3150 4100
 Wire Wire Line
-	3150 4400 1200 4400
+	1200 4400 1500 4400
+Wire Wire Line
+	1500 4400 3150 4400
 $Comp
 L DS18B20 U11
 U 1 1 5AD094C0
@@ -1445,4 +1469,17 @@ NoConn ~ 1500 4500
 NoConn ~ 1500 4600
 NoConn ~ 4450 7050
 NoConn ~ 4450 6950
+Text GLabel 1100 1350 0    60   Input ~ 0
+SOLARGND
+Connection ~ 1100 1250
+Wire Wire Line
+	3200 1000 3300 1000
+Wire Wire Line
+	3300 1000 3300 850 
+Text GLabel 3200 2000 2    60   Input ~ 0
+SOLARGND
+Wire Wire Line
+	3200 1950 3200 2000
+Connection ~ 3200 1900
+Connection ~ 3200 1000
 $EndSCHEMATC

@@ -1055,73 +1055,6 @@ F 3 "" H 6650 6350 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5450 6350 6650 6350
-Wire Wire Line
-	1150 6950 1150 6750
-Wire Wire Line
-	1150 6750 3800 6750
-$Comp
-L R R20
-U 1 1 5ACDAD41
-P 4300 7050
-F 0 "R20" V 4380 7050 50  0000 C CNN
-F 1 "1K" V 4300 7050 50  0000 C CNN
-F 2 "" V 4230 7050 50  0001 C CNN
-F 3 "" H 4300 7050 50  0001 C CNN
-	1    4300 7050
-	0    1    1    0   
-$EndComp
-$Comp
-L R R19
-U 1 1 5ACDAD42
-P 3150 6950
-F 0 "R19" V 3230 6950 50  0000 C CNN
-F 1 "2K2" V 3150 6950 50  0000 C CNN
-F 2 "" V 3080 6950 50  0001 C CNN
-F 3 "" H 3150 6950 50  0001 C CNN
-	1    3150 6950
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	4150 7050 3300 7050
-Wire Wire Line
-	3300 6950 3300 7150
-Wire Wire Line
-	2750 6950 3000 6950
-$Comp
-L GND #PWR21
-U 1 1 5ACDAD43
-P 2900 6950
-F 0 "#PWR21" H 2900 6700 50  0001 C CNN
-F 1 "GND" H 2900 6800 50  0000 C CNN
-F 2 "" H 2900 6950 50  0001 C CNN
-F 3 "" H 2900 6950 50  0001 C CNN
-	1    2900 6950
-	1    0    0    -1  
-$EndComp
-$Comp
-L AP1117-33 U10
-U 1 1 5ACDAD44
-P 850 7250
-F 0 "U10" H 800 7250 50  0000 C CNN
-F 1 "AMS1117-33" H 550 7400 50  0000 L CNN
-F 2 "TO_SOT_Packages_SMD:SOT-223-3Lead_TabPin2" H 850 7450 50  0001 C CNN
-F 3 "" H 950 7000 50  0001 C CNN
-	1    850  7250
-	1    0    0    -1  
-$EndComp
-Text GLabel 550  6850 2    60   Input ~ 0
-+5V
-$Comp
-L GND #PWR22
-U 1 1 5ACDAD45
-P 850 7550
-F 0 "#PWR22" H 850 7300 50  0001 C CNN
-F 1 "GND" H 850 7400 50  0000 C CNN
-F 2 "" H 850 7550 50  0001 C CNN
-F 3 "" H 850 7550 50  0001 C CNN
-	1    850  7550
-	1    0    0    -1  
-$EndComp
 Text GLabel 5450 6850 2    60   Input ~ 0
 Arduino_pin_A2
 Text GLabel 5450 6650 2    60   Input ~ 0
@@ -1148,10 +1081,6 @@ Text GLabel 3650 7450 0    60   Input ~ 0
 Arduino_pin_D10
 Wire Wire Line
 	3650 7450 4450 7450
-Wire Wire Line
-	4450 6950 3800 6950
-Wire Wire Line
-	3800 6950 3800 6750
 Text GLabel 4000 6150 0    60   Input ~ 0
 Arduino_pin_D3
 Text GLabel 4000 6300 0    60   Input ~ 0
@@ -1166,21 +1095,6 @@ Wire Wire Line
 	4200 6150 4200 6750
 Wire Wire Line
 	4200 6750 4450 6750
-$Comp
-L CP C3
-U 1 1 5ACDAD46
-P 1150 7400
-F 0 "C3" H 1175 7500 50  0000 L CNN
-F 1 "10uF" H 1175 7300 50  0000 L CNN
-F 2 "" H 1188 7250 50  0001 C CNN
-F 3 "" H 1150 7400 50  0001 C CNN
-	1    1150 7400
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	850  7550 1150 7550
-Text Notes 1700 6700 0    60   ~ 0
-WiFi
 Text GLabel 4000 6000 0    60   Input ~ 0
 Arduino_pin_D2
 Wire Wire Line
@@ -1346,14 +1260,10 @@ F 3 "" H 4050 3700 50  0001 C CNN
 	1    4050 3750
 	1    0    0    -1  
 $EndComp
-Connection ~ 2900 6950
 NoConn ~ 4450 7150
 NoConn ~ 5450 7550
 NoConn ~ 5450 7450
 NoConn ~ 5450 7350
-Wire Wire Line
-	1150 7050 1150 7250
-Connection ~ 1150 7150
 Connection ~ 8250 800 
 Connection ~ 7850 800 
 $Comp
@@ -1413,19 +1323,6 @@ F 3 "" H 5200 3650 50  0001 L CNN
 $EndComp
 Connection ~ 7000 800 
 $Comp
-L ESP-01v090 U9
-U 1 1 5ACF8297
-P 1950 7050
-F 0 "U9" H 1950 6950 50  0000 C CNN
-F 1 "ESP-01v090" H 1950 7150 50  0000 C CNN
-F 2 "" H 1950 7050 50  0001 C CNN
-F 3 "" H 1950 7050 50  0001 C CNN
-	1    1950 7050
-	1    0    0    -1  
-$EndComp
-NoConn ~ 2750 7050
-NoConn ~ 2750 7150
-$Comp
 L SD_Micro_5V J10
 U 1 1 5ACFE4B2
 P 1500 5700
@@ -1458,20 +1355,10 @@ Wire Wire Line
 	2400 5600 3200 5600
 Wire Wire Line
 	2400 5800 3200 5800
-Wire Wire Line
-	550  6850 550  7250
 Text GLabel 3700 7250 0    60   Input ~ 0
 Arduino_pin_D8
 Wire Wire Line
 	4450 7250 3700 7250
-Connection ~ 1150 7250
-Wire Wire Line
-	2750 7250 2900 7250
-Wire Wire Line
-	2900 7250 2900 7150
-Wire Wire Line
-	2900 7150 3300 7150
-Connection ~ 3300 7050
 Text GLabel 2400 5900 2    60   Input ~ 0
 Arduino_pin_D8
 $Comp
@@ -1556,4 +1443,6 @@ Wire Wire Line
 Connection ~ 1500 4400
 NoConn ~ 1500 4500
 NoConn ~ 1500 4600
+NoConn ~ 4450 7050
+NoConn ~ 4450 6950
 $EndSCHEMATC

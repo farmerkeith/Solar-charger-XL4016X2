@@ -22,4 +22,5 @@ The software for the Arduino Nano (C++ code) is in the software folder. It still
  - deal with two rather than one XL4016 module
  - data logging and clock
  - testing
+
 See the software code for a full listing of Arduino Nano pin allocations. 

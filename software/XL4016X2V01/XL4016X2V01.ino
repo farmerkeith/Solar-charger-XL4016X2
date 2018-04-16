@@ -20,6 +20,7 @@
 // TinyRTC DC1307 real time clock (I2C on A4, A5)
 // Solar controller temperature monitored by DS18B20 mounted on RTC (D2)
 // Battery current in and out monitored (A3)
+// Red and Green status indicators (D5, D6). 
 
 // 2017.01.01: 14938KWh
 // Adding HTU21DF sensor
@@ -80,8 +81,8 @@ template <class T> int EEPROM_readAnything(int ee, T& value)
 // D2 - DS18B20 * 2
 // D3 - Mains power control
 // D4 - Load control
-// D5 - Spare  
-// D6 - Spare 
+// D5 - Green LED  
+// D6 - Red LED 
 // D7 - Spare 
 // D8 - CS for SPI to micro SD card
 // D9 - PWM control of XL4016 #2

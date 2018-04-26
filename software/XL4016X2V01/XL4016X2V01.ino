@@ -2,6 +2,7 @@
 // Modified by farmerkeith
 // based on version by zopinter
 // based on MPPT solar charger Version 3 by deba168
+// based on work by Tim Nolan
 // modification commenced 13 April 2018
 // last change 23 April 2018
 
@@ -65,36 +66,14 @@
 // #include "Adafruit_HTU21DF.h"
 #include <EEPROM.h>
 
+// include tab files ---------------------------------------------------------------------
+#include "data_recording.h"
+
 // global constants ----------------------------------------------------------------------
 #define wattHours_setup 5983
 #define daily_wattHours_setup 0
 #define ampHours_setup 0
 
-// Things to write/read EEPROM
-struct config_t
-{
-  unsigned long wattHours;
-  float wattHours_temp;
-  float max_sol_watts;
-} memory;
-
-template <class T> int EEPROM_writeAnything(int ee, const T& value)
-{
-  const byte* p = (const byte*)(const void*)&value;
-  int i;
-  for (i = 0; i < sizeof(value); i++)
-    EEPROM.write(ee++, *p++);
-  return i;
-}
-
-template <class T> int EEPROM_readAnything(int ee, T& value)
-{
-  byte* p = (byte*)(void*)&value;
-  int i;
-  for (i = 0; i < sizeof(value); i++)
-    *p++ = EEPROM.read(ee++);
-  return i;
-}
 
 //-----------------------------------------------------------------------------------------------------------------
 ///////// Hardware connection constants /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,16 +249,7 @@ AnalogSmooth as100 = AnalogSmooth(50);
 
 void setup()                           // run once, when the sketch starts
 {
-  /* EEPROM_readAnything(0, memory);
-    if (memory.wattHours < wattHours_setup)
-     wattHours = wattHours_setup;
-    else
-     wattHours = memory.wattHours;
-
-    wattHours_temp = memory.wattHours_temp;
-    max_sol_watts = memory.max_sol_watts;
-
-  */
+  // recover data from EEPROM
   wattHours = wattHours_setup;
   //  start_wattHours = wattHours_setup;
 
@@ -339,7 +309,7 @@ void loop()
   keepalive_led();
   lcd_display();                       // lcd display
   // MPPT_test();
-  others();
+  others();                            // max watts and amps;
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -1015,7 +985,7 @@ void MPPT_test(void) {
 //------------------------------------- Others ----------------------------------------------------
 //-------------------------------------------------------------------------------------------------
 
-void others (void)
+void others (void) // max watts and amps; 
 {
   //--------------------------------- Daily and long term max watts and buck amps -----------------------------------
   if ((sol_watts > max_sol_watts) && (sol_watts < 150)) {
@@ -1038,11 +1008,7 @@ void others (void)
     daily_max_buck_amps = 0;
     daily_wattHours = 0;
 
-    /*   memory.wattHours = wattHours;
-       memory.wattHours_temp = wattHours_temp;
-       memory.max_sol_watts = max_sol_watts;
-       EEPROM_writeAnything(0, memory);
-    */
+  // write to EEPROM moved to data_recording tab
   }
 }
 

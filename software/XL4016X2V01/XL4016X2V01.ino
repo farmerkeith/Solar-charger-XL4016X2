@@ -68,12 +68,7 @@
 
 // include tab files ---------------------------------------------------------------------
 #include "data_recording.h"
-
-// global constants ----------------------------------------------------------------------
-#define wattHours_setup 5983
-#define daily_wattHours_setup 0
-#define ampHours_setup 0
-
+#include "LCDcustom_characters.h"
 
 //-----------------------------------------------------------------------------------------------------------------
 ///////// Hardware connection constants /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +90,11 @@ const byte sd_CS_pin =8;     // D8 - CS for SPI to micro SD card
 const byte pwm_buck2 = 9;    // D9 - PWM control of XL4016 #2
 const byte pwm_buck1 =10;    // D10 - PWM control of XL4016 #1
 // #define PWM_PIN 11
+
+// global constants ----------------------------------------------------------------------
+#define wattHours_setup 5983
+#define daily_wattHours_setup 0
+#define ampHours_setup 0
 
 // #define COOLING_FAN_PWM_PIN 3               // pin used to control air cleaning fan in room
 // #define TURN_ON_COOLING_FAN analogWrite(COOLING_FAN_PWM_PIN, 55)
@@ -124,44 +124,6 @@ boolean ledState;                          //current LED state
 #define AVG_NUM 50                          // number of iterations of the adc routine to average the adc readings
 
 
-//------------------------------------------------------------------------------------------------------
-/////////////////////////////////////////BIT MAP ARRAY//////////////////////////////////////////////////
-//-------------------------------------------------------------------------------------------------------
-byte solar[8] = //icon for solar panel
-{
-  0b11111,
-  0b10101,
-  0b11111,
-  0b10101,
-  0b11111,
-  0b10101,
-  0b11111,
-  0b00000
-};
-
-byte battery[8] =
-{
-  0b01110,
-  0b11011,
-  0b10001,
-  0b10001,
-  0b11111,
-  0b11111,
-  0b11111,
-  0b11111,
-};
-
-byte _PWM [8] =
-{
-  0b11101,
-  0b10101,
-  0b10101,
-  0b10101,
-  0b10101,
-  0b10101,
-  0b10101,
-  0b10111,
-};
 
 //-------------------------------------------- Global variables --------------------------------------------------------
 float sol_amps_previous = 0;

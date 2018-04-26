@@ -3,11 +3,11 @@
 // based on version by zopinter
 // based on MPPT solar charger Version 3 by deba168
 // modification commenced 13 April 2018
-// last change 13 April 2018
+// last change 23 April 2018
 
 // key components:
 // Arduino Nano V3 microcontroller
-// 2 DC-DC converter modules based on XL4016 with pwm control of feedback
+// 2 DC-DC converter modules based on XL4016 with pwm control of output voltage via feedback pin
 // XL4016 controlled by the Nano (pwm on D9 and D10)
 // solar panel up to 240W Voc<39V Isc<8 Amps
 // AGM or flooded lead acid battery nominal 12V
@@ -19,7 +19,7 @@
 // Micro SD card for data logging (SPI on D11, D12, D13 with CS on D8)
 // TinyRTC DC1307 real time clock (I2C on A4, A5)
 // Solar controller temperature monitored by DS18B20 mounted on RTC (D2)
-// Battery current in and out monitored (A3)
+// Battery current in and out monitored by ACS712 20A (A3)
 // Red and Green status indicators (D5, D6). 
 
 // 2017.01.01: 14938KWh
@@ -28,16 +28,47 @@
 // Adding EEPROM store
 //----------------------------------------------------------------------------------------------------
 
-#define wattHours_setup 5983
-#define daily_wattHours_setup 0
+//////// Arduino pins Connections//////////////////////////////////////////////////////////////////////////////////
+// A0 - Solar panel voltage 100K/15K divider
+// A1 - Solar panel current ACS 712 5A
+// A2 - Battery voltage 100K/47K divider
+// A3 - Battery current ACS 712 5A 
+// A4 - I2C SDA for LCD, RTC and EEPROM
+// A5 - I2C SCL for LCD, RTC and EEPROM
+// A6 - Pushbutton for LCD backlight control
+// A7 - Spare - use if needed for cooling FAN control 
 
-#define ampHours_setup 0
+// D0 - reserved for USB to host
+// D1 - reserved for USB to host
+// D2 - DS18B20 * 2
+// D3 - Mains power control
+// D4 - Load control
+// D5 - Green LED  
+// D6 - Red LED 
+// D7 - Spare 
+// D8 - CS for SPI to micro SD card
+// D9 - PWM control of XL4016 #2
+// D10 - PWM control of XL4016 #1
+// D11 - SPI MOSI
+// D12 - SPI MISO
+// D13 - SPI clock SCK; also Nano on board LED
 
+// possible other functions
+// COOLING FAN control
+// AIR CLEANING FAN control
+// ACS712 ENABLE/DISABLE ??
+
+// include libraries ---------------------------------------------------------------------
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <AnalogSmooth.h>
-#include "Adafruit_HTU21DF.h"
+// #include "Adafruit_HTU21DF.h"
 #include <EEPROM.h>
+
+// global constants ----------------------------------------------------------------------
+#define wattHours_setup 5983
+#define daily_wattHours_setup 0
+#define ampHours_setup 0
 
 // Things to write/read EEPROM
 struct config_t
@@ -66,63 +97,41 @@ template <class T> int EEPROM_readAnything(int ee, T& value)
 }
 
 //-----------------------------------------------------------------------------------------------------------------
-//////// Arduino pins Connections//////////////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------------------------------------------------------------------
-
-// A0 - Solar panel voltage 100K/15K divider
-// A1 - Solar panel current ACS 712 5A
-// A2 - Battery voltage 100K/47K divider
-// A3 - Battery current ACS 712 5A 
-// A4 - I2C SDA for LCD, RTC and EEPROM
-// A5 - I2C SCL for LCD, RTC and EEPROM
-// A6 - Pushbutton for LCD backlight control
-// A7 - Spare - use if needed for cooling FAN control 
-
-// D2 - DS18B20 * 2
-// D3 - Mains power control
-// D4 - Load control
-// D5 - Green LED  
-// D6 - Red LED 
-// D7 - Spare 
-// D8 - CS for SPI to micro SD card
-// D9 - PWM control of XL4016 #2
-// D10 - PWM control of XL4016 #1
-// D11 - SPI MOSI
-// D12 - SPI MISO
-// D13 - SPI clock SCK; also Nano on board LED
-
-// possible other functions
-// COOLING FAN control
-// AIR CLEANING FAN control
-// ACS712 ENABLE/DISABLE ??
-///////// Definitions /////////////////////////////////////////////////////////////////////////////////////////////////
+///////// Hardware connection constants /////////////////////////////////////////////////////////////////////////////////////////////////
 //#define BAT_FLOAT 12.35                  // battery voltage we want to stop charging at
 
-#define SOL_AMPS_CHAN 0                     // Defining the adc channel to read solar amps
-#define SOL_VOLTS_CHAN 1                    // defining the adc channel to read solar volts
-#define BAT_VOLTS_CHAN 2                    // defining the adc channel to read battery volts
-#define BUCK_AMPS_CHAN 3                    // Defining the adc channel to read bucks amps
+const byte SOL_VOLTS_CHAN =0;               // defining the adc channel to read solar volts on A0
+const byte SOL_AMPS_CHAN =1;                // Defining the adc channel to read solar amps on A1
+const byte BAT_VOLTS_CHAN =2;               // defining the adc channel to read battery volts on A2
+const byte BUCK_AMPS_CHAN =3;               // Defining the adc channel to read battery amps on A3
+const byte BACK_LIGHT_PIN =6;               // pin A6 is used to control the lcd back light
 
-#define COOLING_FAN_PWM_PIN 3                       // pin used to control air cleaning fan in room
-#define TURN_ON_COOLING_FAN analogWrite(COOLING_FAN_PWM_PIN, 55)
-#define TURN_OFF_COOLING_FAN analogWrite(COOLING_FAN_PWM_PIN, 0)
+const byte DS18B20_pin = 2;  // D2 for One-wire to DS18B20 * 2
+const byte mains_pin = 3;    // D3 - Mains power control
+const byte load_pin = 4;     // D4 - Load control
+const byte greenLED_pin =5;  // D5 - Green LED  
+const byte redLED_pin = 6;   // D6 - Red LED 
+// D7 - Spare 
+const byte sd_CS_pin =8;     // D8 - CS for SPI to micro SD card
+const byte pwm_buck2 = 9;    // D9 - PWM control of XL4016 #2
+const byte pwm_buck1 =10;    // D10 - PWM control of XL4016 #1
+// #define PWM_PIN 11
 
-#define BACK_LIGHT_PIN 5                    // pin-5 is used to control the lcd back light
+// #define COOLING_FAN_PWM_PIN 3               // pin used to control air cleaning fan in room
+// #define TURN_ON_COOLING_FAN analogWrite(COOLING_FAN_PWM_PIN, 55)
+// #define TURN_OFF_COOLING_FAN analogWrite(COOLING_FAN_PWM_PIN, 0)
 
-#define NIGHT_LIGHT_ENABLE_PIN 7                                             // pin used to control night light
-#define TURN_ON_NIGHT_LIGHT digitalWrite(NIGHT_LIGHT_ENABLE_PIN, HIGH)      // enable Night light
-#define TURN_OFF_NIGHT_LIGHT digitalWrite(NIGHT_LIGHT_ENABLE_PIN, LOW)      // disable Night light
+// #define NIGHT_LIGHT_ENABLE_PIN 7                                             // pin used to control night light
+// #define TURN_ON_NIGHT_LIGHT digitalWrite(NIGHT_LIGHT_ENABLE_PIN, HIGH)      // enable Night light
+// #define TURN_OFF_NIGHT_LIGHT digitalWrite(NIGHT_LIGHT_ENABLE_PIN, LOW)      // disable Night light
 
-#define BIG_FAN_PWM_PIN 9                       // pin used to control air cleaning fan in room
-#define TURN_OFF_BIG_FAN analogWrite(BIG_FAN_PWM_PIN, 0)
+//#define BIG_FAN_PWM_PIN 9                       // pin used to control air cleaning fan in room
+//#define TURN_OFF_BIG_FAN analogWrite(BIG_FAN_PWM_PIN, 0)
 
-#define ACS_ENABLE_PIN 10                                    // pin used to control ACS712 power for energy save purposes
-#define TURN_ON_ACS digitalWrite(ACS_ENABLE_PIN, HIGH)      // enable ACS712 sensors
-#define TURN_OFF_ACS digitalWrite(ACS_ENABLE_PIN, LOW)      // disable ACS712 sensors
+// #define ACS_ENABLE_PIN 10                                    // pin used to control ACS712 power for energy save purposes
+// #define TURN_ON_ACS digitalWrite(ACS_ENABLE_PIN, HIGH)      // enable ACS712 sensors
+// #define TURN_OFF_ACS digitalWrite(ACS_ENABLE_PIN, LOW)      // disable ACS712 sensors
 
-#define PWM_PIN 11
-
-#define LED_PIN 13                          // pin-13 is used for keepalive
 #define LED_ON 50                            //milliseconds
 #define LED_OFF 5000
 unsigned long ms;                          //time from millis()
@@ -222,7 +231,7 @@ int back_light_state = 0;
   int gain_counter = 0;
 */
 
-float eff;                             // effeciency
+float eff;                             // efficiency
 int eff_sum = 0;
 int eff_temp = 0;
 int eff_counter = 0;
@@ -249,7 +258,7 @@ unsigned long wattHours = 0;
 
 LiquidCrystal_I2C lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
-Adafruit_HTU21DF htu = Adafruit_HTU21DF();
+// Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 
 //AnalogSmooth as = AnalogSmooth();
 AnalogSmooth as100 = AnalogSmooth(50);
@@ -294,22 +303,24 @@ void setup()                           // run once, when the sketch starts
   lcd.createChar(2, battery);          // turn the bitmap into a character
   lcd.createChar(3, _PWM);             // turn the bitmap into a character
 
-  pinMode(ACS_ENABLE_PIN, OUTPUT);     // sets the digital pin as output
-  TURN_ON_ACS;                         // turn off ACS712
+//  pinMode(ACS_ENABLE_PIN, OUTPUT);     // sets the digital pin as output
+//  TURN_ON_ACS;                         // turn off ACS712
 
-  pinMode(NIGHT_LIGHT_ENABLE_PIN, OUTPUT);           // output for the LOAD MOSFET (LOW = on, HIGH = off)
-  TURN_OFF_NIGHT_LIGHT;
-  night_light_state = 0;
+//  pinMode(NIGHT_LIGHT_ENABLE_PIN, OUTPUT);           // output for the LOAD MOSFET (LOW = on, HIGH = off)
+//  TURN_OFF_NIGHT_LIGHT;
+//  night_light_state = 0;
 
-  pinMode(BIG_FAN_PWM_PIN, OUTPUT);           // output for the LOAD MOSFET (LOW = on, HIGH = off)
+//  pinMode(BIG_FAN_PWM_PIN, OUTPUT);           // output for the LOAD MOSFET (LOW = on, HIGH = off)
 
   pinMode (BACK_LIGHT_PIN, INPUT);
 
-  pinMode (PWM_PIN, OUTPUT);
+  pinMode (pwm_buck1, OUTPUT);
+  pinMode (pwm_buck2, OUTPUT);
 
-  pinMode (COOLING_FAN_PWM_PIN, OUTPUT);
+//  pinMode (COOLING_FAN_PWM_PIN, OUTPUT);
 
-  pinMode(LED_PIN, OUTPUT);            // sets the digital pin as output
+  pinMode(greenLED_pin, OUTPUT);          // sets the digital pin as output
+  pinMode(redLED_pin, OUTPUT);            // sets the digital pin as output
 }
 
 //------------------------------------------------------------------------------------------------------
@@ -320,11 +331,11 @@ void loop()
   read_data();                         // read data from inputs
   mode_select();                       // select the charging state
   set_charger();                       // run the charger state machine
-  //  print_data();                        // print data
-  cooling_fan();
-  big_fan();
-  night_light();
-  power_save();
+  // print_data();                        // print data
+  // cooling_fan();
+  // big_fan();
+  // night_light();
+  // power_save(); // ACS712 uses 10mA at 5V
   keepalive_led();
   lcd_display();                       // lcd display
   // MPPT_test();
@@ -435,19 +446,22 @@ void set_charger(void) {
     case SLEEP:                                                                               // the charger is in the sleep state
       if (pwm_value > 0) pwm_value--;
       pwm_value = constrain (pwm_value, 0, 255);
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
       break;
 
     case MPPT:                                                                                // the charger is in the bulk state
       if (sol_volts >= 18.00)
       {
         pwm_value--;
-        analogWrite (PWM_PIN, pwm_value);
+        analogWrite (pwm_buck1, pwm_value);
+        analogWrite (pwm_buck2, pwm_value);
       }
       else if (sol_volts < 14.00)
       {
         pwm_value++;
-        analogWrite (PWM_PIN, pwm_value);
+        analogWrite (pwm_buck1, pwm_value);
+        analogWrite (pwm_buck2, pwm_value);
       }
       else {
         MPPT_PO();
@@ -458,12 +472,14 @@ void set_charger(void) {
     case FLOAT:                                                                               // the charger is in the float state, it uses PWM instead of MPPT
       if (pwm_value > 0) pwm_value--;
       pwm_value = constrain (pwm_value, 0, 255);
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
       delay (75);
       break;
 
     default:                                                                                  // if none of the other cases are satisfied,
-      analogWrite (PWM_PIN, 0);
+      analogWrite (pwm_buck1, 0);
+      analogWrite (pwm_buck2, 0);
       break;
   }
 }
@@ -484,7 +500,8 @@ void MPPT_PO (void) {
   old_mppt_track = mppt_track;
 
   pwm_value = constrain (pwm_value, 0, 255);
-  analogWrite (PWM_PIN, pwm_value);
+  analogWrite (pwm_buck1, pwm_value);
+  analogWrite (pwm_buck2, pwm_value);
   delay (75);
 }
 
@@ -503,13 +520,15 @@ void MPPT_IC (void) {
     else if (dI > 0) // that means you have to make dI=0 decrease I,decraese duty cycle
     {
       pwm_value++;
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
     }
 
     else if (dI < 0) // that means you have to increase I to make dI=0;increase duty cycle
     {
       pwm_value--;
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
     }
   }
 
@@ -525,12 +544,14 @@ void MPPT_IC (void) {
     else if (dI / dV < -(sol_amps / sol_volts))
     {
       pwm_value--;
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
     }
     else
     {
       pwm_value++;
-      analogWrite (PWM_PIN, pwm_value);
+      analogWrite (pwm_buck1, pwm_value);
+      analogWrite (pwm_buck2, pwm_value);
     }
   }
   sol_volts_previous = sol_volts;
@@ -594,6 +615,7 @@ void print_data (void) {
   Serial.print("\n\r");
 }
 
+/*
 //-------------------------------------------------------------------------------------------------
 //------------------------------------- AirCleaning fan -------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -644,16 +666,18 @@ void big_fan (void)
     }
   }
 }
+*/ // end of big_fan control function
 
 //-------------------------------------------------------------------------------------------------
 //------------------------------------- Cooling fan -----------------------------------------------
 //-------------------------------------------------------------------------------------------------
-void cooling_fan (void)
-{
-  if (buck_amps > 3) TURN_ON_COOLING_FAN;
-  else TURN_OFF_COOLING_FAN;
-}
+// void cooling_fan (void)
+// {
+//   if (buck_amps > 3) TURN_ON_COOLING_FAN;
+//   else TURN_OFF_COOLING_FAN;
+// }
 
+/*
 //-------------------------------------------------------------------------------------------------
 //------------------------------------- Night Light -----------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -676,25 +700,28 @@ void night_light (void)
   if (night_light_state == 2 && sol_volts > 10.00) {
     night_light_state = 0;
   }
-}
+} // end of night light funtion
+*/
 
+/*
 //-------------------------------------------------------------------------------------------------
 //-------------------------------------- Power Save -----------------------------------------------
 //-------------------------------------------------------------------------------------------------
-void power_save (void)
+void power_save (void) // ACS712 uses 10 mA at 5 volts = 50 mW
 {
   if (sol_volts < 8.50) {
     TURN_OFF_ACS;
     CLKPR = 0x80;
-    CLKPR = 0x02;
+    CLKPR = 0x02; // over-writes previous instruction
   }
 
   if (sol_volts > 9.00) {
     TURN_ON_ACS;
     CLKPR = 0x80;
-    CLKPR = 0x00;
+    CLKPR = 0x00; // over-writes previous instruction
   }
-}
+} // end of power_save
+*/
 
 //-------------------------------------------------------------------------------------------------
 //----------------------------------- Keepalive indication ----------------------------------------
@@ -703,7 +730,7 @@ void keepalive_led (void)
 {
   ms = millis();
   if (ms - msLast > (ledState ? LED_ON : LED_OFF)) {
-    digitalWrite(LED_PIN, ledState = !ledState);
+    digitalWrite(greenLED_pin, ledState = !ledState);
     //    lcd.clear();
     msLast = ms;
   }
@@ -788,15 +815,15 @@ void lcd_display()
     lcd.print("A");
 
     //-------------------- Temperature and Humidity ---------------
-    lcd.setCursor(15, 2);
-    if (millis() > (ms3 + 15000)) {
-      lcd.print(htu.readTemperature(), 1);
-      lcd.print("C");
-    }
-    else {
-      lcd.print(htu.readHumidity(), 1);
-      lcd.print("%");
-    }
+//    lcd.setCursor(15, 2);
+//    if (millis() > (ms3 + 15000)) {
+//      lcd.print(htu.readTemperature(), 1);
+//      lcd.print("C");
+//    }
+//    else {
+//      lcd.print(htu.readHumidity(), 1);
+//      lcd.print("%");
+//    }
 
     //-------------------- Efficiency & WattHour ---------------
     lcd.setCursor(5, 2);
@@ -870,7 +897,8 @@ void MPPT_test(void) {
 
   back_light_pin_State = digitalRead(BACK_LIGHT_PIN);
   if ((charger_state == MPPT) && (back_light_state == 1) && (back_light_pin_State == HIGH)) {
-    analogWrite (PWM_PIN, 255);
+    analogWrite (pwm_buck1, 255);
+    analogWrite (pwm_buck2, 255);
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("MPP test starting...");
@@ -881,7 +909,8 @@ void MPPT_test(void) {
     lcd.clear();
 
     for (n = 255; n >= 0 ; n--) {      // loop through reading raw adc values AVG_NUM number of times
-      analogWrite (PWM_PIN, n);
+      analogWrite (pwm_buck1, n);
+      analogWrite (pwm_buck2, n);
       //      delay(1);             // pauses for 50 microseconds
       read_data();                         // read data from inputs
 
@@ -959,7 +988,8 @@ void MPPT_test(void) {
     lcd.setCursor(14, 3);
     lcd.print("DONE!!");
     pwm_value = pwm_MPPT;
-    analogWrite (PWM_PIN, pwm_value);
+    analogWrite (pwm_buck1, pwm_value);
+    analogWrite (pwm_buck2, pwm_value);
 
     Serial.print("\n\r");
     Serial.print("Done, Maximum Power Point results are:");
